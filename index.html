@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>For My Velvet 🌸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Bitter:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ---- luxury baby-pink palette ---- */
+    --primary:#FFD6E7;
+    --secondary:#FFEAF3;
+    --accent:#FF8DB3;
+    --rose-gold:#E8B4C7;
+    --soft-white:#FFF9FC;
+    --ink:#5a2e40;
+    --ink-deep:#3c1c28;
+    --cream:#FFF9FC;
+    --gold:#E8B4C7;
+    --gold-soft:#F6D8E4;
+    --rose:#FF8DB3;
+    --rose-deep:#e0678f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{
+    width:100%;height:100%;
+    overflow:hidden;
+    background:var(--soft-white);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #experience{
+    position:fixed; inset:0;
+    width:100vw; height:100vh;
+    overflow:hidden;
+  }
+  canvas#garden{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+
+  /* ---------- gate (tap to begin) ---------- */
+  #gate{
+    position:fixed; inset:0;
+    z-index:100;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:1.1rem;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,214,231,.9) 0%, transparent 55%),
+      radial-gradient(circle at 75% 80%, rgba(232,180,199,.75) 0%, transparent 60%),
+      linear-gradient(160deg, #2a0f18 0%, #150a0d 55%, #0a0507 100%);
+    cursor:pointer;
+    transition:opacity 1.1s ease;
+    overflow:hidden;
+  }
+  #gate::before{
+    content:'';
+    position:absolute; inset:-20%;
+    background:radial-gradient(circle, rgba(0,0,0,.55) 0%, transparent 65%);
+    filter:blur(28px);
+    transform:translateY(8%);
+    pointer-events:none;
+  }
+  #gate::after{
+    content:'';
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 35%, rgba(0,0,0,.18));
+    pointer-events:none;
+  }
+  #gate.hide{ opacity:0; pointer-events:none; }
+  #gate .gate-heart{
+    position:relative;
+    z-index:2;
+    font-size:2.6rem;
+    animation:beat 1.6s ease-in-out infinite;
+    filter:drop-shadow(0 0 20px rgba(255,141,179,.55));
+    text-shadow:0 8px 18px rgba(0,0,0,.45);
+  }
+  #gate h2{
+    position:relative;
+    z-index:2;
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-weight:400;
+    font-size:clamp(1.3rem,3.6vw,2rem);
+    color:var(--cream);
+    letter-spacing:.01em;
+    text-align:center;
+    padding:0 2rem;
+    text-shadow:0 8px 24px rgba(0,0,0,.45);
+  }
+  #gate p{
+    position:relative;
+    z-index:2;
+    font-family:'Inter',sans-serif;
+    font-size:.7rem;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:rgba(255,249,252,.7);
+    text-shadow:0 4px 10px rgba(0,0,0,.35);
+  }
+  #gate .gate-ring{
+    position:relative;
+    z-index:2;
+    width:64px; height:64px;
+    border-radius:50%;
+    border:1px solid rgba(255,214,231,.4);
+    display:flex; align-items:center; justify-content:center;
+    margin-top:.4rem;
+    animation:ringPulse 2.4s ease-in-out infinite;
+    box-shadow:0 10px 28px rgba(0,0,0,.35);
+  }
+  @keyframes ringPulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(255,141,179,.3); }
+    50%{ box-shadow:0 0 0 14px rgba(255,141,179,0); }
+  }
+  #gate .loader-bar{
+    width:140px; height:2px; background:rgba(255,214,231,.2);
+    border-radius:2px; overflow:hidden; margin-top:.3rem;
+  }
+  #gate .loader-bar span{
+    display:block; height:100%; width:0%;
+    background:linear-gradient(90deg,var(--rose),var(--rose-gold));
+    animation:loadBar 2.6s ease forwards;
+  }
+  @keyframes loadBar{ to{ width:100%; } }
+  .gate-hearts{ position:absolute; inset:0; pointer-events:none; z-index:1; }
+  .gate-hearts span{
+    position:absolute;
+    font-size:1.25rem;
+    animation:gateHeartFloat 3.4s linear infinite;
+    opacity:0;
+    text-shadow:0 6px 12px rgba(0,0,0,.35);
+  }
+  @keyframes gateHeartFloat{
+    0%{ transform:translate3d(0,10px,0) scale(.7); opacity:0; }
+    10%{ opacity:1; }
+    100%{ transform:translate3d(0,-120px,0) scale(1.15); opacity:0; }
+  }
+
+  /* ---------- shared stage layout ---------- */
+  .stage{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 1.2s cubic-bezier(.22,.61,.36,1);
+    z-index:10;
+    padding:0 6vw;
+    text-align:center;
+  }
+  .stage.active{ opacity:1; pointer-events:auto; }
+
+  .eyebrow{
+    font-family:'Inter',sans-serif;
+    font-size:.68rem;
+    letter-spacing:.36em;
+    text-transform:uppercase;
+    color:var(--rose-deep);
+    margin-bottom:1.6rem;
+    opacity:0;
+  }
+  .stage.active .eyebrow{ animation:riseIn 1s ease forwards .15s; }
+
+  .serif{
+    font-family:'Playfair Display',serif;
+    font-weight:700;
+    color:var(--ink-deep);
+    text-shadow:0 2px 18px rgba(255,255,255,.85), 0 1px 3px rgba(255,255,255,.6);
+  }
+
+  @keyframes riseIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  @keyframes wordIn{
+    from{opacity:0; transform:translateY(14px) scale(.97); filter:blur(3px);}
+    to{opacity:1; transform:translateY(0) scale(1); filter:blur(0);}
+  }
+  .word{
+    display:inline-block;
+    opacity:0;
+    animation:wordIn .7s cubic-bezier(.22,.61,.36,1) forwards;
+    margin-right:.32em;
+  }
+
+  /* ---------- card behind copy (no blur — bold text instead) ---------- */
+  .glass-card{
+    position:relative;
+    background:transparent;
+    border:none;
+    border-radius:28px;
+    padding:clamp(1.2rem,4vw,2.4rem) clamp(1rem,5vw,2.6rem);
+    box-shadow:none;
+  }
+
+  /* ---------- ambient petals / hearts ---------- */
+  #petals{
+    position:absolute; inset:0;
+    z-index:6;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .petal{
+    position:absolute;
+    top:104%;
+    font-size:1rem;
+    opacity:0;
+    animation-name:floatUp;
+    animation-timing-function:ease-in;
+    animation-iteration-count:infinite;
+    will-change:transform,opacity;
+    filter:drop-shadow(0 0 6px rgba(255,141,179,.35));
+  }
+  @keyframes floatUp{
+    0%{ transform:translate(0,0) rotate(0deg); opacity:0; }
+    8%{ opacity:.85; }
+    50%{ transform:translate(var(--sway,20px), -55vh) rotate(160deg); }
+    88%{ opacity:.55; }
+    100%{ transform:translate(calc(var(--sway,20px) * -1), -112vh) rotate(320deg); opacity:0; }
+  }
+
+  /* ---------- heart burst ---------- */
+  .burst-heart{
+    position:fixed;
+    font-size:1rem;
+    z-index:60;
+    pointer-events:none;
+    animation:burstOut .95s ease-out forwards;
+  }
+  @keyframes burstOut{
+    0%{ transform:translate(-50%,-50%) scale(.4); opacity:1; }
+    100%{ transform:translate(calc(-50% + var(--bx)), calc(-50% + var(--by))) scale(1.05); opacity:0; }
+  }
+
+  /* ---------- intro / video stage ---------- */
+  #stage-video{ z-index:5; }
+  #intro-video-wrap{
+    position:absolute; inset:0;
+    overflow:hidden;
+    background:#050203;
+  }
+  #intro-video{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    filter:saturate(1.05) contrast(1.04) brightness(.98);
+    opacity:0;
+    transform:scale(1.12);
+    transition:opacity 1.8s ease, transform 9s cubic-bezier(.16,.6,.2,1);
+  }
+  #intro-video.show{ opacity:1; transform:scale(1.0); }
+  #intro-video.freeze{ transition:filter 1.4s ease; filter:saturate(.9) contrast(1.05) brightness(.7) blur(1px); }
+  .film-grain{
+    position:absolute; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+    opacity:.35;
+    pointer-events:none;
+  }
+  .lens-flare{
+    position:absolute; width:46vw; height:46vw; left:-10vw; top:-14vw;
+    background:radial-gradient(circle, rgba(255,214,231,.5) 0%, rgba(255,141,179,.14) 35%, transparent 70%);
+    mix-blend-mode:screen;
+    pointer-events:none;
+    animation:flareDrift 9s ease-in-out infinite;
+  }
+  @keyframes flareDrift{
+    0%,100%{ transform:translate(0,0); opacity:.55; }
+    50%{ transform:translate(6vw,8vw); opacity:.85; }
+  }
+  .intro-caption{
+    position:absolute; left:0; right:0; bottom:9vh;
+    z-index:8; text-align:center;
+    opacity:0;
+    display:flex; flex-direction:column; align-items:center; gap:.6rem;
+    padding:0 1.4rem;
+  }
+  .intro-caption.show{ animation:riseIn 1.3s ease forwards; }
+  .intro-caption .video-headline,
+  .intro-caption .video-midline{
+    display:block;
+    margin:0;
+    text-shadow:0 4px 24px rgba(0,0,0,.7);
+  }
+  .intro-caption .video-headline{
+    font-family:'Bitter','Playfair Display',serif;
+    font-size:clamp(1.5rem,3.6vw,2.35rem);
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--cream);
+    text-transform:uppercase;
+  }
+  .intro-caption .video-midline{
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(1rem,2.2vw,1.35rem);
+    font-weight:600;
+    letter-spacing:.04em;
+    color:rgba(255,249,252,.95);
+  }
+
+  /* ---------- message stages ---------- */
+  .msg-line{
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-weight:700;
+    font-size:clamp(1.7rem,5vw,3.2rem);
+    color:var(--ink-deep);
+    line-height:1.35;
+    text-shadow:0 2px 18px rgba(255,255,255,.85), 0 1px 3px rgba(255,255,255,.6);
+  }
+  .type-line{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:700;
+    font-size:clamp(1.3rem,3.6vw,2.1rem);
+    color:var(--ink-deep);
+    letter-spacing:.01em;
+    line-height:1.6;
+    min-height:1.6em;
+    text-shadow:0 2px 16px rgba(255,255,255,.85), 0 1px 3px rgba(255,255,255,.6);
+  }
+  .cursor{
+    display:inline-block;
+    width:2px; height:1em;
+    background:var(--accent);
+    margin-left:2px;
+    vertical-align:text-bottom;
+    animation:blink 530ms infinite;
+  }
+  @keyframes blink{ 0%,49%{opacity:1;} 50%,100%{opacity:0;} }
+
+  .bold-word{
+    font-family:'Playfair Display',serif;
+    font-weight:700;
+    font-size:clamp(2.6rem,7.4vw,5.2rem);
+    background:linear-gradient(120deg,var(--rose-deep),var(--accent) 45%,var(--rose-gold));
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
+    margin-bottom:.9rem;
+    opacity:0;
+    transform:scale(.85);
+  }
+  .bold-word.pop{ animation:popIn .85s cubic-bezier(.2,1.4,.4,1) forwards; }
+  @keyframes popIn{
+    0%{opacity:0; transform:scale(.8);}
+    60%{opacity:1; transform:scale(1.06);}
+    100%{opacity:1; transform:scale(1);}
+  }
+  .heart{
+    display:inline-block;
+    margin-left:.25em;
+    animation:beat 1.15s ease-in-out infinite;
+  }
+  @keyframes beat{
+    0%,100%{transform:scale(1);}
+    25%{transform:scale(1.22);}
+    40%{transform:scale(.96);}
+  }
+  .emoji-pop{
+    display:inline-block;
+    font-size:clamp(2rem,6vw,3.6rem);
+    margin-top:1.4rem;
+    opacity:0;
+    animation:bloomIn 1s cubic-bezier(.2,1.4,.4,1) forwards;
+  }
+  @keyframes bloomIn{
+    0%{opacity:0; transform:scale(.3) rotate(-15deg);}
+    70%{opacity:1; transform:scale(1.15) rotate(4deg);}
+    100%{opacity:1; transform:scale(1) rotate(0);}
+  }
+
+  /* ---------- finale stage ---------- */
+  #stage-finale{
+    padding:0;
+    justify-content:flex-end;
+    align-items:stretch;
+  }
+  .photo-frame{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+  }
+  .slide{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    opacity:0;
+    transition:opacity .9s cubic-bezier(.22,1,.36,1);
+    will-change:opacity,transform;
+  }
+  .slide.show{ opacity:1; }
+  .slide img{
+    width:100%; height:100%;
+    object-fit:cover;
+    transform:scale(1.08);
+    transition:transform 6.2s cubic-bezier(.22,1,.36,1);
+    filter:none !important;
+    image-rendering:auto;
+    backface-visibility:hidden;
+    transform:translateZ(0);
+  }
+  .slide.show img{ transform:scale(1.0); }
+  .slide[data-pos="top"] img{ object-position:center 20%; }
+  .slide[data-pos="mid"] img{ object-position:center 35%; }
+  .slide[data-pos="low"] img{ object-position:center 60%; }
+
+  .photo-frame::after{
+    content:'';
+    position:absolute; inset:0;
+    background:
+      linear-gradient(to top, rgba(58,20,32,.92) 0%, rgba(58,20,32,.72) 30%, rgba(58,20,32,.32) 55%, rgba(58,20,32,.08) 75%, rgba(58,20,32,.32) 100%),
+      radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(40,10,20,.35) 100%);
+    z-index:1;
+  }
+  .bokeh{ position:absolute; inset:0; z-index:2; pointer-events:none; }
+  .bokeh span{
+    position:absolute; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,214,231,.85), rgba(255,214,231,0) 70%);
+    filter:blur(1px);
+    animation:bokehFloat linear infinite;
+  }
+  @keyframes bokehFloat{
+    0%{ transform:translateY(0) scale(1); opacity:0; }
+    10%{ opacity:.7; }
+    90%{ opacity:.5; }
+    100%{ transform:translateY(-40vh) scale(1.3); opacity:0; }
+  }
+  .photo-dots{
+    position:absolute;
+    bottom:1.5rem; right:1.8rem;
+    display:flex; gap:.45rem;
+    z-index:22;
+  }
+  .photo-dots span{
+    width:6px; height:6px; border-radius:50%;
+    background:rgba(255,249,252,.35);
+    transition:background .4s ease, transform .4s ease;
+  }
+  .photo-dots span.on{ background:var(--cream); transform:scale(1.3); }
+
+  .finale-copy{
+    position:relative;
+    z-index:20;
+    padding:clamp(2rem,7vh,4rem) clamp(1.6rem,5vw,4.2rem);
+    width:100%;
+    text-align:left;
+    background:transparent;
+    border-radius:0;
+    box-shadow:none;
+  }
+  .finale-copy::before{
+    display:none;
+  }
+  @media (max-width:600px){
+    .finale-copy{ background:transparent; }
+  }
+  .finale-name{
+    font-family:'Bitter','Playfair Display',serif;
+    font-size:clamp(1.7rem,4.2vw,2.8rem);
+    font-weight:700;
+    letter-spacing:.01em;
+    color:var(--cream);
+    text-shadow:none;
+    margin-bottom:1.1rem;
+    opacity:0;
+    text-rendering:optimizeLegibility;
+  }
+  .finale-name.show{ animation:riseIn .9s ease forwards; }
+  .finale-message{
+    max-width:560px;
+    margin-bottom:1.6rem;
+  }
+  .finale-message p{
+    font-family:'Bitter','Cormorant Garamond',serif;
+    font-weight:700;
+    font-size:clamp(.95rem,1.9vw,1.2rem);
+    letter-spacing:.01em;
+    color:rgba(255,249,252,.98);
+    line-height:1.7;
+    text-shadow:none;
+    opacity:0;
+    min-height:.4em;
+    display:inline-block;
+    max-width:100%;
+    text-rendering:optimizeLegibility;
+  }
+  .finale-message.show p{ animation:riseIn .8s ease forwards; }
+
+  .finale-message p.shimmer-line{
+    background:linear-gradient(90deg, var(--cream) 0%, var(--rose-gold) 22%, var(--rose) 45%, var(--gold-soft) 68%, var(--cream) 100%);
+    background-size:250% auto;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    color:transparent;
+    font-weight:500;
+    animation:riseIn .8s ease forwards, shimmerMove 5s linear infinite 1s;
+    filter:none;
+  }
+  @keyframes shimmerMove{
+    0%{ background-position:0% 50%; }
+    100%{ background-position:250% 50%; }
+  }
+
+  .finale-signature{
+    font-family:'Bitter','Playfair Display',serif;
+    font-style:italic;
+    font-size:clamp(.95rem,2.1vw,1.25rem);
+    font-weight:600;
+    color:var(--rose-gold);
+    text-shadow:none;
+    opacity:0;
+    text-rendering:optimizeLegibility;
+  }
+  .finale-signature.show{ animation:riseIn 1s ease forwards; }
+
+  .replay-btn{
+    position:absolute;
+    bottom:1.1rem; left:50%;
+    transform:translateX(-50%);
+    font-family:'Inter',sans-serif;
+    font-size:.68rem;
+    letter-spacing:.1em;
+    color:rgba(255,249,252,.55);
+    z-index:30;
+    background:none; border:none;
+    cursor:pointer;
+    padding:.6rem 1rem;
+    opacity:0;
+    transition:opacity .3s ease, color .3s ease;
+  }
+  .replay-btn.show{ opacity:1; }
+  .replay-btn:hover{ color:var(--rose-gold); }
+
+  /* ---------- progress dots ---------- */
+  #progress{
+    position:absolute;
+    top:1.4rem; left:50%;
+    transform:translateX(-50%);
+    display:flex; gap:.5rem;
+    z-index:40;
+  }
+  #progress span{
+    width:5px; height:5px; border-radius:50%;
+    background:rgba(90,46,64,.2);
+    transition:background .5s ease, transform .5s ease;
+  }
+  #progress span.on{ background:var(--rose-deep); transform:scale(1.4); }
+  .stage-video-active #progress span{ background:rgba(255,249,252,.3); }
+  .stage-video-active #progress span.on{ background:var(--rose-gold); }
+
+  /* ---------- music control ---------- */
+  #music-pill{
+    position:fixed;
+    bottom:1.2rem; left:1.2rem;
+    z-index:45;
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    background:rgba(255,255,255,.5);
+    border:1px solid rgba(255,255,255,.7);
+    backdrop-filter:blur(8px);
+    border-radius:999px;
+    padding:.5rem .6rem;
+    opacity:0;
+    transition:opacity .6s ease;
+    box-shadow:0 8px 24px rgba(224,103,143,.18);
+  }
+  #music-pill.show{ opacity:1; }
+  #music-pill button{
+    width:30px; height:30px;
+    border-radius:50%;
+    border:none;
+    background:rgba(255,141,179,.18);
+    color:var(--rose-deep);
+    font-size:.85rem;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .25s ease, transform .25s ease;
+  }
+  #music-pill button:hover{ background:rgba(255,141,179,.32); transform:scale(1.06); }
+  #music-pill .bars{
+    display:flex; align-items:flex-end; gap:2px; height:14px; margin:0 .1rem;
+  }
+  #music-pill .bars span{
+    width:2.5px; background:var(--rose-deep); border-radius:2px;
+    animation:barBounce 1s ease-in-out infinite;
+    height:4px;
+  }
+  #music-pill.playing .bars span{ animation-play-state:running; }
+  #music-pill:not(.playing) .bars span{ animation-play-state:paused; height:3px; }
+  #music-pill .bars span:nth-child(1){ animation-delay:0s; }
+  #music-pill .bars span:nth-child(2){ animation-delay:.15s; }
+  #music-pill .bars span:nth-child(3){ animation-delay:.3s; }
+  @keyframes barBounce{
+    0%,100%{ height:4px; }
+    50%{ height:13px; }
+  }
+  #song-label{
+    font-family:'Inter',sans-serif;
+    font-size:.62rem;
+    letter-spacing:.05em;
+    color:var(--ink);
+    max-width:110px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    padding-right:.2rem;
+  }
+
+  /* vignette across whole experience */
+  #vignette{
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:50;
+    box-shadow:inset 0 0 16vw rgba(224,103,143,.14);
+  }
+
+  /* mouse / touch parallax layer */
+  #parallax-glow{
+    position:fixed; inset:0; z-index:4; pointer-events:none;
+    background:radial-gradient(circle 340px at var(--mx,50%) var(--my,50%), rgba(255,255,255,.35), transparent 70%);
+    mix-blend-mode:screen;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+  }
+
+  @media (max-width:520px){
+    .finale-message{ max-width:100%; }
+    .glass-card{ border-radius:20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-hearts" aria-hidden="true">
+    <span style="left:10%; top:18%; animation-delay:0s;">💗</span>
+    <span style="left:20%; top:74%; animation-delay:.6s;">💖</span>
+    <span style="left:78%; top:20%; animation-delay:1.1s;">💞</span>
+    <span style="left:86%; top:72%; animation-delay:1.7s;">💕</span>
+    <span style="left:50%; top:18%; animation-delay:2.2s;">💗</span>
+  </div>
+  <div class="gate-heart">🩷</div>
+  <h2>For My Velvet</h2>
+  <p>tap to begin</p>
+  <div class="gate-ring">✨</div>
+  <div class="loader-bar"><span></span></div>
+</div>
+
+<div id="experience">
+  <canvas id="garden"></canvas>
+  <div id="petals"></div>
+  <div id="parallax-glow"></div>
+
+  <div id="progress">
+    <span data-i="0"></span><span data-i="1"></span><span data-i="2"></span><span data-i="3"></span><span data-i="4"></span><span data-i="5"></span>
+  </div>
+
+  <!-- Stage V: Cinematic video intro -->
+  <section class="stage" id="stage-video">
+    <div id="intro-video-wrap">
+      <video id="intro-video" muted playsinline preload="auto" src="assets/video/VID_20260716_152209.mp4"></video>
+      <div class="lens-flare"></div>
+      <div class="film-grain"></div>
+    </div>
+    <div class="intro-caption" id="intro-caption">
+      <p class="video-headline">Hey Cutie</p>
+      <p class="video-midline">Just in case you don't know how much I appreciate you, I really really do. You're such a special person who's one of a kind</p>
+    </div>
+  </section>
+
+  <!-- Stage 0: Garden -->
+  <section class="stage" id="stage-garden">
+    <div class="garden-copy glass-card">
+      <p class="eyebrow">a little something, growing</p>
+      <h1 class="serif" style="font-size:clamp(1.6rem,4.4vw,2.7rem); font-weight:700; font-style:italic;">A bouquet, picked just for you 🌸</h1>
+      <p class="sub" style="margin-top:.9rem; font-family:'Cormorant Garamond',serif; font-weight:700; font-size:clamp(.95rem,2vw,1.15rem); color:var(--ink); letter-spacing:.02em; text-shadow:0 1px 12px rgba(255,255,255,.8);">watch it bloom, my Velvet...</p>
+    </div>
+  </section>
+
+  <!-- Stage 1: Message 1 -->
+  <section class="stage" id="stage-msg1">
+    <div class="glass-card">
+      <div class="msg-line" id="m1-words"></div>
+      <span class="emoji-pop" id="m1-emoji">🌸</span>
+    </div>
+  </section>
+
+  <!-- Stage 2: Message 2 -->
+  <section class="stage" id="stage-msg2">
+    <div class="glass-card">
+      <div class="type-line" id="m2-line1"></div>
+      <div class="type-line" id="m2-line2"></div>
+    </div>
+  </section>
+
+  <!-- Stage 3: Message 3 -->
+  <section class="stage" id="stage-msg3">
+    <div class="glass-card">
+      <div class="bold-word" id="m3-bold">Velvet.</div>
+      <div class="msg-line" id="m3-words" style="font-size:clamp(1.2rem,3.5vw,2rem); font-style:normal; font-weight:700; color:var(--ink-deep);"></div>
+    </div>
+  </section>
+
+  <!-- Stage 4: Finale -->
+  <section class="stage" id="stage-finale">
+    <div class="photo-frame" id="slides">
+      <div class="slide show" id="slide-0" data-pos="mid"><img src="assets/images/file_00000000fc4071f9bae87509df3388c1.png" alt="Velvet Bouquet Photo"></div>
+      <div class="slide" id="slide-1" data-pos="top"><img src="assets/images/IMG_20260421_184510.jpg.jpeg" alt="Velvet Photo 1"></div>
+      <div class="slide" id="slide-2" data-pos="mid"><img src="assets/images/IMG_20260716_151202.jpg.jpeg" alt="Velvet Photo 2"></div>
+    </div>
+    <div class="bokeh" id="bokeh"></div>
+    <div class="photo-dots" id="photo-dots"><span class="on"></span><span></span><span></span></div>
+
+    <div class="finale-copy">
+      <h2 class="finale-name" id="f-name">Harshuuu</h2>
+      <div class="finale-message" id="f-message"></div>
+      <p class="finale-signature" id="f-sig">From RoMuffin<br>TO Velvet ❤️</p>
+    </div>
+    <button class="replay-btn" id="replay-btn">↻ watch again</button>
+  </section>
+
+  <div id="music-pill">
+    <button id="music-toggle">▶</button>
+    <div class="bars"><span></span><span></span><span></span></div>
+    <span id="song-label">our song</span>
+  </div>
+</div>
+
+<div id="vignette"></div>
+
+<audio id="bg-music" src="assets/music/ReelAudio-61626.mp3.mpeg" preload="auto"></audio>
+
+<script>
+/* =========================================================
+   GARDEN CANVAS — bouquet engine, recolored for a soft
+   baby-pink luxury sunset palette. Auto-plants so nothing
+   needs to be tapped open.
+   ========================================================= */
+const canvas = document.getElementById('garden');
+const ctx = canvas.getContext('2d');
+let W, H, CX, BASE, SC;
+const flowers = [];
+const START = Date.now();
+
+function resize(){
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  CX = W/2; BASE = H*0.95; SC = Math.min(W,H)/700;
+  if (W < 600) SC = W/350;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const easeInOut = x=> x<0.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2;
+
+function bezPt(x0,y0,cx1,cy1,cx2,cy2,x1,y1,t){
+  const m=1-t;
+  return [ m*m*m*x0+3*m*m*t*cx1+3*m*t*t*cx2+t*t*t*x1,
+           m*m*m*y0+3*m*m*t*cy1+3*m*t*t*cy2+t*t*t*y1 ];
+}
+function bezAngle(x0,y0,cx1,cy1,cx2,cy2,x1,y1,t){
+  const m=1-t;
+  const dx=3*m*m*(cx1-x0)+6*m*t*(cx2-cx1)+3*t*t*(x1-cx2);
+  const dy=3*m*m*(cy1-y0)+6*m*t*(cy2-cy1)+3*t*t*(y1-cy2);
+  return Math.atan2(dy,dx);
+}
+
+/* soft floating sparkles instead of stars — daylight sunset feel */
+const STARS = Array.from({length:160},()=>({
+  x:Math.random(), y:Math.random()*0.85, r:Math.random()*1.3+0.2,
+  phase:Math.random()*Math.PI*2, speed:0.02+Math.random()*0.035,
+  gold: Math.random()<0.35
+}));
+const SPARKS = Array.from({length:34},()=>{ const s={}; resetSp(s); s.life=Math.random()*s.max; return s; });
+function resetSp(s){
+  s.x=Math.random()*W; s.y=BASE-Math.random()*(H*0.8);
+  s.vy=-0.2-Math.random()*0.5; s.life=0; s.max=0.6+Math.random()*0.5;
+  s.sz=1.2+Math.random()*2.0; s.hue=330+Math.random()*30;
+}
+
+function drawEnvironment(){
+  /* dreamy pink-sunset gradient */
+  const bg = ctx.createRadialGradient(CX,H*0.42,10,CX,H*0.4,H*0.95);
+  bg.addColorStop(0,'#FFEAF3'); bg.addColorStop(0.35,'#FFD6E7');
+  bg.addColorStop(0.7,'#F3B8CE'); bg.addColorStop(1,'#D98CA8');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+  const pool = ctx.createRadialGradient(CX,BASE,10,CX,BASE-20,W);
+  pool.addColorStop(0,'rgba(232,180,199,0.45)'); pool.addColorStop(1,'rgba(232,180,199,0)');
+  ctx.fillStyle = pool; ctx.fillRect(0,0,W,H);
+
+  STARS.forEach(s=>{
+    s.phase += s.speed;
+    const a = 0.15 + 0.5*Math.abs(Math.sin(s.phase));
+    ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+    ctx.fillStyle = s.gold ? `rgba(255,255,255,${a})` : `rgba(255,141,179,${a*0.7})`;
+    ctx.fill();
+  });
+  SPARKS.forEach(s=>{
+    s.life += 0.016;
+    s.y += s.vy;
+    if (s.life >= s.max) {
+      resetSp(s);
+    }
+    const alpha = 1 - (s.life / s.max);
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.sz, 0, Math.PI*2);
+    ctx.fillStyle = `hsla(${s.hue}, 95%, 85%, ${alpha * 0.7})`;
+    ctx.fill();
+  });
+}
+
+function drawStem(x0,y0,cx1,cy1,cx2,cy2,x1,y1,prog,thick,col){
+  if (prog<=0) return;
+  ctx.beginPath();
+  const steps=48;
+  for(let i=0;i<=steps*prog;i++){
+    const [px,py]=bezPt(x0,y0,cx1,cy1,cx2,cy2,x1,y1,i/steps);
+    i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+  }
+  ctx.strokeStyle=col; ctx.lineWidth=thick; ctx.lineCap='round';
+  ctx.shadowColor=col; ctx.shadowBlur=2; ctx.stroke(); ctx.shadowBlur=0;
+}
+
+function drawLilyLeaf(x,y,rot,size,prog){
+  if (prog<=0) return; const s=size*prog;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+  ctx.beginPath(); ctx.moveTo(0,0);
+  ctx.quadraticCurveTo(s*0.15,s*0.15,s,0);
+  ctx.quadraticCurveTo(s*0.15,-s*0.15,0,0);
+  const lg=ctx.createLinearGradient(0,0,s,0);
+  lg.addColorStop(0,'#2d5e20'); lg.addColorStop(1,'#509c3c');
+  ctx.fillStyle=lg; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(s*0.5,0,s*0.9,0);
+  ctx.strokeStyle='rgba(0,40,0,0.4)'; ctx.lineWidth=s*0.02; ctx.stroke();
+  ctx.restore();
+}
+function drawLilyFlower(x,y,size,prog,wob,stemAngle){
+  const s=size*prog*1.6;
+  const rot=(stemAngle+Math.PI/2)*0.3+wob;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+  const pg=ctx.createRadialGradient(0,0,0,0,0,s*0.7);
+  pg.addColorStop(0,'#b8e69c'); pg.addColorStop(0.25,'#f5fceb');
+  pg.addColorStop(0.8,'#ffffff'); pg.addColorStop(1,'#f2f2f2');
+  const drawPetal=(rad,w)=>{
+    ctx.beginPath(); ctx.moveTo(0,0);
+    ctx.bezierCurveTo(-rad*0.3*w,-rad*0.3,-rad*0.2*w,-rad*0.8,0,-rad);
+    ctx.bezierCurveTo(rad*0.2*w,-rad*0.8,rad*0.3*w,-rad*0.3,0,0);
+    ctx.fillStyle=pg; ctx.shadowColor='rgba(255,255,255,0.5)'; ctx.shadowBlur=10*prog; ctx.fill();
+    ctx.strokeStyle='rgba(100,150,80,0.15)'; ctx.lineWidth=rad*0.015;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(rad*0.02,-rad*0.5,0,-rad*0.9); ctx.stroke();
+  };
+  for(let i=0;i<3;i++){ ctx.save(); ctx.rotate(i*Math.PI*2/3); drawPetal(s*0.9,0.85); ctx.restore(); }
+  for(let i=0;i<3;i++){ ctx.save(); ctx.rotate(i*Math.PI*2/3+Math.PI/3); ctx.shadowColor='rgba(0,0,0,0.2)'; ctx.shadowBlur=8; drawPetal(s,1.0); ctx.restore(); }
+  ctx.shadowBlur=0;
+  for(let i=0;i<6;i++){
+    ctx.save(); ctx.rotate(i*Math.PI*2/6+Math.PI/6);
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(s*0.11,-s*0.33,0,-s*0.55);
+    ctx.strokeStyle='#cce3b6'; ctx.lineWidth=s*0.02; ctx.stroke();
+    ctx.translate(0,-s*0.55); ctx.rotate(Math.PI/2+0.2);
+    ctx.beginPath(); ctx.ellipse(0,0,s*0.04,s*0.12,0,0,Math.PI*2); ctx.fillStyle='#9c3d03'; ctx.fill();
+    ctx.restore();
+  }
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-s*0.65); ctx.strokeStyle='#9dc779'; ctx.lineWidth=s*0.035; ctx.stroke();
+  ctx.beginPath(); ctx.arc(0,-s*0.65,s*0.04,0,Math.PI*2); ctx.fillStyle='#7aab4d'; ctx.fill();
+  ctx.restore();
+}
+
+function drawRoseFlower(x,y,size,prog,wob,stemAngle){
+  const s=size*prog*1.3;
+  const rot=(stemAngle+Math.PI/2)+wob;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+  const rg=ctx.createRadialGradient(0,0,0,0,0,s*0.65);
+  rg.addColorStop(0,'#ff9eb0'); rg.addColorStop(0.5,'#e0355f'); rg.addColorStop(1,'#8f1338');
+  const petal=(rad,rot2,curl)=>{
+    ctx.save(); ctx.rotate(rot2);
+    ctx.beginPath(); ctx.moveTo(0,0);
+    ctx.bezierCurveTo(-rad*0.55,-rad*0.15,-rad*0.5,-rad*curl,0,-rad*curl);
+    ctx.bezierCurveTo(rad*0.5,-rad*curl,rad*0.55,-rad*0.15,0,0);
+    ctx.fillStyle=rg; ctx.shadowColor='rgba(190,20,60,0.4)'; ctx.shadowBlur=10*prog; ctx.fill();
+    ctx.restore();
+  };
+  for(let ring=0; ring<4; ring++){
+    const count=5+ring; const curl=0.55+ring*0.13; const rad=s*(0.35+ring*0.16);
+    for(let i=0;i<count;i++) petal(rad,(i/count)*Math.PI*2+ring*0.3,curl);
+  }
+  ctx.shadowBlur=0;
+  ctx.beginPath(); ctx.arc(0,0,s*0.12,0,Math.PI*2); ctx.fillStyle='#c2185b'; ctx.fill();
+  ctx.restore();
+}
+
+function drawSunflowerLeaf(x,y,rot,size,prog){
+  if (prog<=0) return; const s=size*prog;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+  ctx.beginPath(); ctx.moveTo(0,0);
+  ctx.bezierCurveTo(s*0.2,s*0.35,s*0.75,s*0.25,s,0);
+  ctx.bezierCurveTo(s*0.75,-s*0.2,s*0.2,-s*0.3,0,0);
+  const lg=ctx.createLinearGradient(0,0,s,0);
+  lg.addColorStop(0,'#1f5e1a'); lg.addColorStop(1,'#3f9c2c');
+  ctx.fillStyle=lg; ctx.fill();
+  ctx.restore();
+}
+function drawSunflowerFlower(x,y,size,prog,wob,stemAngle){
+  const s=size*prog*1.4;
+  const rot=wob*0.6;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+  const drawRing=(rad,count,col,offset,glow)=>{
+    for(let i=0;i<count;i++){
+      ctx.save(); ctx.rotate((i/count)*Math.PI*2+offset);
+      ctx.beginPath(); ctx.moveTo(0,0);
+      ctx.bezierCurveTo(-rad*0.16,-rad*0.5,-rad*0.1,-rad*0.95,0,-rad);
+      ctx.bezierCurveTo(rad*0.1,-rad*0.95,rad*0.16,-rad*0.5,0,0);
+      ctx.fillStyle=col;
+      if (glow){ ctx.shadowColor=col; ctx.shadowBlur=14*prog; }
+      ctx.fill(); ctx.restore();
+    }
+  };
+  ctx.fillStyle='#1b6522';
+  for(let i=0;i<16;i++){
+    ctx.save(); ctx.rotate((i/16)*Math.PI*2); ctx.beginPath();
+    ctx.moveTo(0,0); ctx.lineTo(-s*0.08,-s*0.4); ctx.lineTo(0,-s*0.55); ctx.lineTo(s*0.08,-s*0.4); ctx.fill(); ctx.restore();
+  }
+  drawRing(s*0.95,26,'#ffaa00',0,true);
+  drawRing(s*0.85,26,'#ffd700',Math.PI/26,false);
+  ctx.fillStyle='#4a2511'; ctx.beginPath(); ctx.arc(0,0,s*0.42,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#3a3b10'; ctx.beginPath(); ctx.arc(0,0,s*0.33,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#1a1805'; ctx.beginPath(); ctx.arc(0,0,s*0.20,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#6b4412';
+  for(let i=0;i<200;i++){
+    const r=Math.sqrt(i)*(s*0.027); if(r>s*0.38) break;
+    const a=i*2.39996; ctx.beginPath(); ctx.arc(Math.cos(a)*r,Math.sin(a)*r,s*0.012,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawTulipLeaf(x,y,rot,size,prog){
+  if (prog<=0) return; const s=size*prog;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(s*0.3,s*0.25,s*0.8,s*0.1,s,0);
+  ctx.bezierCurveTo(s*0.8,-s*0.15,s*0.3,-s*0.25,0,0);
+  const lg=ctx.createLinearGradient(0,0,s,0);
+  lg.addColorStop(0,'#2e5441'); lg.addColorStop(0.5,'#4b7a62'); lg.addColorStop(1,'#335e47');
+  ctx.fillStyle=lg; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(s*0.5,0,s*0.9,0);
+  ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=s*0.03; ctx.stroke();
+  ctx.restore();
+}
+function drawTulipFlower(x,y,size,prog,wob,stemAngle){
+  const s=size*prog*1.5;
+  const rot=(stemAngle+Math.PI/2)*0.2+wob;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+  const pg=ctx.createLinearGradient(0,-s,0,0);
+  pg.addColorStop(0,'#fce4ec'); pg.addColorStop(0.3,'#f48fb1');
+  pg.addColorStop(0.7,'#d81b60'); pg.addColorStop(1,'#7a9650');
+  ctx.fillStyle=pg; ctx.shadowColor='rgba(255,105,180,0.5)'; ctx.shadowBlur=15*prog;
+  ctx.beginPath(); ctx.moveTo(-s*0.1,0); ctx.bezierCurveTo(-s*0.35,-s*0.4,-s*0.25,-s*0.95,0,-s*1.05); ctx.bezierCurveTo(s*0.25,-s*0.95,s*0.35,-s*0.4,s*0.1,0); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(-s*0.4,-s*0.1,-s*0.55,-s*0.7,-s*0.3,-s*0.95); ctx.bezierCurveTo(-s*0.1,-s*0.8,0,-s*0.4,0,0); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(s*0.4,-s*0.1,s*0.55,-s*0.7,s*0.3,-s*0.95); ctx.bezierCurveTo(s*0.1,-s*0.8,0,-s*0.4,0,0); ctx.fill();
+  ctx.shadowBlur=5; ctx.shadowColor='rgba(0,0,0,0.25)';
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(-s*0.45,-s*0.3,-s*0.45,-s*0.85,-s*0.1,-s*1.0); ctx.bezierCurveTo(0,-s*0.8,s*0.1,-s*0.3,0,0); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(s*0.45,-s*0.3,s*0.45,-s*0.85,s*0.1,-s*1.0); ctx.bezierCurveTo(0,-s*0.8,-s*0.1,-s*0.3,0,0); ctx.fill();
+  const fg=ctx.createLinearGradient(0,-s,0,0);
+  fg.addColorStop(0,'#ffffff'); fg.addColorStop(0.2,'#ff80ab'); fg.addColorStop(0.7,'#c2185b'); fg.addColorStop(1,'#556b2f');
+  ctx.fillStyle=fg;
+  ctx.beginPath(); ctx.moveTo(-s*0.15,0); ctx.bezierCurveTo(-s*0.35,-s*0.4,-s*0.25,-s*0.9,0,-s*0.95); ctx.bezierCurveTo(s*0.25,-s*0.9,s*0.35,-s*0.4,s*0.15,0); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=s*0.015; ctx.stroke();
+  ctx.restore();
+}
+
+function drawGenericFlower(x,y,size,prog,wob){
+  const s=size*prog; const rot=wob;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+  for(let i=0;i<5;i++){
+    ctx.save(); ctx.rotate((i/5)*Math.PI*2-Math.PI/2);
+    ctx.beginPath(); ctx.ellipse(0,-s*0.58,s*0.295,s*0.46,0,0,Math.PI*2);
+    ctx.fillStyle='#e04838'; ctx.shadowColor='#ff6650'; ctx.shadowBlur=22*prog; ctx.fill(); ctx.restore();
+  }
+  const cg=ctx.createRadialGradient(0,0,0,0,0,s*0.31);
+  cg.addColorStop(0,'#fff8d0'); cg.addColorStop(0.42,'#ffcc44'); cg.addColorStop(1,'#ff9922');
+  ctx.beginPath(); ctx.arc(0,0,s*0.29,0,Math.PI*2); ctx.fillStyle=cg; ctx.shadowColor='#ffcc44'; ctx.shadowBlur=24*prog; ctx.fill();
+  ctx.beginPath(); ctx.arc(0,0,s*0.10,0,Math.PI*2); ctx.fillStyle='rgba(255,252,200,0.92)'; ctx.shadowBlur=12*prog; ctx.fill(); ctx.restore();
+}
+
+const FLOWER_DEFS = {
+  lily:      { sd:'#234a1c', sl:'#468f3b', leaves:[0.2,0.5,0.8] },
+  rose:      { sd:'#1b6522', sl:'#2caa38', leaves:[] },
+  sunflower: { sd:'#164a1a', sl:'#2caa38', leaves:[0.3,0.6] },
+  tulip:     { sd:'#365e47', sl:'#518567', leaves:[0.2,0.4] },
+  generic:   { sd:'#1b6522', sl:'#2caa38', leaves:[] }
+};
+const TYPES = Object.keys(FLOWER_DEFS);
+
+function plantFlower(tx, ty){
+  const type = TYPES[Math.floor(Math.random()*TYPES.length)];
+  const def = FLOWER_DEFS[type];
+  if (ty > BASE - 100) ty = BASE - 100;
+  const size = (22 + Math.random()*16) * SC;
+
+  let overlapping = true, attempts = 0;
+  while(overlapping && attempts < 15){
+    overlapping = false;
+    for(const f of flowers){
+      const dx = tx-f.tx, dy = ty-f.ty;
+      const minDist = (size+f.size)*0.8;
+      if (dx*dx+dy*dy < minDist*minDist){
+        tx += (Math.random()>0.5?1:-1)*minDist;
+        ty += (Math.random()-0.5)*minDist;
+        overlapping = true; break;
+      }
+    }
+    attempts++;
+  }
+  if (tx<50) tx=50; if (tx>W-50) tx=W-50;
+  if (ty<50) ty=50; if (ty>BASE-100) ty=BASE-100;
+
+  const xSpread = ((tx/W)-0.5)*200;
+  const bx = CX+xSpread, by = BASE+Math.random()*20;
+  const cp1x = bx, cp1y = by-Math.abs(by-ty)*0.4;
+  const cp2x = tx-(tx-bx)*0.2, cp2y = ty+Math.abs(by-ty)*0.4;
+
+  flowers.push({
+    type, bx, by, tx, ty, cp1x, cp1y, cp2x, cp2y,
+    size, thick:(3+Math.random()*1.5)*SC,
+    startTime: Date.now(), duration: 3200+Math.random()*1800,
+    wobble: Math.random()*Math.PI*2,
+    sd: def.sd, sl: def.sl, leaves: def.leaves,
+    dir: Math.random()<0.5?1:-1
+  });
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  drawEnvironment();
+  const now = Date.now();
+  const t = now - START;
+
+  flowers.forEach(f=>{
+    const rawP = Math.min((now-f.startTime)/f.duration, 1);
+    const sp = easeInOut(rawP);
+    const fp = easeInOut(clamp(rawP,0,1));
+
+    drawStem(f.bx,f.by,f.cp1x,f.cp1y,f.cp2x,f.cp2y,f.tx,f.ty,sp,f.thick,f.sd);
+    drawStem(f.bx,f.by,f.cp1x,f.cp1y,f.cp2x,f.cp2y,f.tx,f.ty,sp,f.thick*0.5,f.sl);
+
+    f.leaves.forEach((lt,i)=>{
+      if (sp>lt){
+        const [lx,ly] = bezPt(f.bx,f.by,f.cp1x,f.cp1y,f.cp2x,f.cp2y,f.tx,f.ty,lt);
+        const lAngle = bezAngle(f.bx,f.by,f.cp1x,f.cp1y,f.cp2x,f.cp2y,f.tx,f.ty,lt);
+        const lDir = i%2===0?f.dir:-f.dir;
+        const lProg = clamp((sp-lt)*4,0,1);
+        if (f.type==='lily') drawLilyLeaf(lx,ly,lAngle+(Math.PI/2.8)*lDir,f.size*1.5,lProg);
+        else if (f.type==='sunflower') drawSunflowerLeaf(lx,ly,lAngle+(Math.PI/2.5)*lDir,f.size*1.6,lProg);
+        else if (f.type==='tulip') drawTulipLeaf(lx,ly,lAngle+(Math.PI/8)*lDir,f.size*2.2,lProg);
+      }
+    });
+
+    const [fx,fy] = bezPt(f.bx,f.by,f.cp1x,f.cp1y,f.cp2x,f.cp2y,f.tx,f.ty,Math.min(sp,1));
+    const angle = bezAngle(f.bx,f.by,f.cp1x,f.cp1y,f.cp2x,f.cp2y,f.tx,f.ty,Math.min(sp,1));
+    const wob = Math.sin(t*0.0013+f.wobble)*0.05;
+
+    if (f.type==='lily') drawLilyFlower(fx,fy,f.size,fp,wob,angle);
+    else if (f.type==='rose') drawRoseFlower(fx,fy,f.size,fp,wob,angle);
+    else if (f.type==='sunflower') drawSunflowerFlower(fx,fy,f.size,fp,wob,angle);
+    else if (f.type==='tulip') drawTulipFlower(fx,fy,f.size,fp,wob,angle);
+    else if (f.type==='generic') drawGenericFlower(fx,fy,f.size,fp,wob);
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* Auto-plant flowers in a gentle arc across the garden stage,
+   so nothing needs to be tapped to "open" the bouquet. */
+let autoPlantTimer = null;
+function startAutoPlanting(){
+  let i = 0;
+  const spots = 9;
+  autoPlantTimer = setInterval(()=>{
+    if (i >= spots){ clearInterval(autoPlantTimer); return; }
+    const frac = (i + 0.5) / spots;
+    const tx = W*0.12 + frac*(W*0.76) + (Math.random()-0.5)*40;
+    const ty = BASE - (H*0.46) - Math.random()*(H*0.24);
+    plantFlower(tx, ty);
+    i++;
+  }, 520);
+}
+function clearGarden(){
+  flowers.length = 0;
+  if (autoPlantTimer) clearInterval(autoPlantTimer);
+}
+
+/* =========================================================
+   AMBIENT PETALS — drifting petals/hearts/sparkles across
+   every stage, in soft pink and pearl tones.
+   ========================================================= */
+const petalLayer = document.getElementById('petals');
+const PETAL_EMOJI = ['🌸','🩷','✨','🤍','🌷','💮'];
+function spawnPetal(){
+  const el = document.createElement('span');
+  el.className = 'petal';
+  el.textContent = PETAL_EMOJI[Math.floor(Math.random()*PETAL_EMOJI.length)];
+  const left = Math.random()*100;
+  const duration = 9 + Math.random()*7;
+  const sway = 30 + Math.random()*60;
+  const size = 0.7 + Math.random()*0.9;
+  el.style.left = left+'vw';
+  el.style.fontSize = size+'rem';
+  el.style.setProperty('--sway', sway+'px');
+  el.style.animationDuration = duration+'s';
+  el.style.animationDelay = (-Math.random()*duration)+'s';
+  petalLayer.appendChild(el);
+}
+for(let i=0;i<18;i++) spawnPetal();
+
+/* =========================================================
+   MOUSE / TOUCH PARALLAX GLOW — subtle luxury cursor glow
+   ========================================================= */
+const glow = document.getElementById('parallax-glow');
+function setGlow(x,y){
+  glow.style.setProperty('--mx', x+'px');
+  glow.style.setProperty('--my', y+'px');
+}
+window.addEventListener('mousemove', e=> setGlow(e.clientX, e.clientY));
+window.addEventListener('touchmove', e=>{
+  if (e.touches[0]) setGlow(e.touches[0].clientX, e.touches[0].clientY);
+}, {passive:true});
+
+/* =========================================================
+   HEART BURST — a little magic pulse at key emotional beats
+   ========================================================= */
+function heartBurst(x, y, count){
+  count = count || 10;
+  for(let i=0;i<count;i++){
+    const h = document.createElement('span');
+    h.className = 'burst-heart';
+    h.textContent = Math.random() < 0.5 ? '❤️' : '🩷';
+    const angle = (Math.PI*2*i/count) + Math.random()*0.4;
+    const dist = 70 + Math.random()*90;
+    h.style.left = x+'px';
+    h.style.top = y+'px';
+    h.style.setProperty('--bx', Math.cos(angle)*dist+'px');
+    h.style.setProperty('--by', Math.sin(angle)*dist+'px');
+    h.style.fontSize = (0.8 + Math.random()*0.8)+'rem';
+    document.body.appendChild(h);
+    setTimeout(()=> h.remove(), 1000);
+  }
+}
+
+/* =========================================================
+   FLOATING BOKEH — soft glowing orbs behind the finale photos
+   ========================================================= */
+const bokehLayer = document.getElementById('bokeh');
+function spawnBokeh(){
+  const s = document.createElement('span');
+  const size = 6 + Math.random()*22;
+  s.style.width = size+'px';
+  s.style.height = size+'px';
+  s.style.left = (Math.random()*100)+'vw';
+  s.style.bottom = (-10 - Math.random()*10)+'vh';
+  s.style.animationDuration = (7 + Math.random()*8)+'s';
+  s.style.animationDelay = (-Math.random()*12)+'s';
+  bokehLayer.appendChild(s);
+}
+for(let i=0;i<22;i++) spawnBokeh();
+
+/* =========================================================
+   MUSIC — soft luxury background song. Starts silently the
+   moment the gate is tapped; small pill lets Velvet pause it.
+   ========================================================= */
+const music = document.getElementById('bg-music');
+const musicPill = document.getElementById('music-pill');
+const musicToggle = document.getElementById('music-toggle');
+music.loop = true;
+music.volume = 0;
+function fadeMusicIn(){
+  musicPill.classList.add('show','playing');
+  music.currentTime = 0;
+  music.play().catch(()=>{});
+  let v = 0;
+  const step = setInterval(()=>{
+    v += 0.04;
+    if (v >= 0.75){ v = 0.75; clearInterval(step); }
+    music.volume = v;
+  }, 120);
+}
+function resetMusicForReplay(){
+  music.pause();
+  music.currentTime = 0;
+  music.volume = 0;
+  musicPill.classList.remove('playing');
+  musicToggle.textContent = '▶';
+}
+function fadeMusicOut(cb){
+  let v = music.volume;
+  const step = setInterval(()=>{
+    v -= 0.05;
+    if (v <= 0){ v = 0; clearInterval(step); music.pause(); if(cb) cb(); }
+    music.volume = v;
+  }, 90);
+}
+musicToggle.addEventListener('click', ()=>{
+  if (music.paused){
+    music.play().catch(()=>{});
+    musicPill.classList.add('playing');
+    musicToggle.textContent = '❚❚';
+  } else {
+    music.pause();
+    musicPill.classList.remove('playing');
+    musicToggle.textContent = '▶';
+  }
+});
+
+/* =========================================================
+   STAGE SEQUENCER
+   ========================================================= */
+const stageIds = ['stage-garden','stage-msg1','stage-msg2','stage-msg3','stage-video','stage-finale'];
+const stageEls = stageIds.map(id => document.getElementById(id));
+const dots = Array.from(document.querySelectorAll('#progress span'));
+let timers = [];
+let finaleLoopHandles = [];
+
+function clearAllTimers(){
+  timers.forEach(clearTimeout);
+  timers = [];
+  finaleLoopHandles.forEach(h => { if (h.type==='interval') clearInterval(h.id); else clearTimeout(h.id); });
+  finaleLoopHandles = [];
+}
+
+function setStage(index){
+  stageEls.forEach((el,i)=> el.classList.toggle('active', i===index));
+  dots.forEach((d,i)=> d.classList.toggle('on', i===index));
+  document.body.classList.toggle('stage-video-active', index===4);
+}
+
+function wrapWords(container, text, delayStep){
+  container.innerHTML = '';
+  text.split(' ').forEach((w,i)=>{
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.style.animationDelay = (i*delayStep)+'s';
+    span.textContent = w;
+    container.appendChild(span);
+  });
+}
+
+function typeInto(el, text, speed, done){
+  el.textContent = '';
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  el.appendChild(cursor);
+  let i = 0;
+  const step = ()=>{
+    if (i <= text.length){
+      el.textContent = text.slice(0,i);
+      el.appendChild(cursor);
+      i++;
+      timers.push(setTimeout(step, speed));
+    } else {
+      cursor.remove();
+      if (done) done();
+    }
+  };
+  step();
+}
+
+/* ---- Stage V: cinematic video intro ---- */
+function runVideoIntro(){
+  clearGarden();
+  setStage(4);
+  const vid = document.getElementById('intro-video');
+  const caption = document.getElementById('intro-caption');
+  vid.currentTime = 0;
+  vid.playbackRate = 0.82;
+  vid.classList.remove('show','freeze');
+  const playPromise = vid.play();
+  if (playPromise) playPromise.catch(()=>{});
+  timers.push(setTimeout(()=> vid.classList.add('show'), 120));
+  timers.push(setTimeout(()=> caption.classList.add('show'), 520));
+
+  let transitionStarted = false;
+  const finishVideo = ()=>{
+    if (transitionStarted) return;
+    transitionStarted = true;
+    vid.classList.add('freeze');
+    vid.pause();
+    runFinale();
+  };
+
+  vid.addEventListener('ended', finishVideo, { once: true });
+  vid.onended = finishVideo;
+  vid.addEventListener('timeupdate', ()=>{
+    if (!transitionStarted && vid.duration && vid.currentTime >= vid.duration - 0.2){
+      finishVideo();
+    }
+  });
+}
+
+function runGarden(){
+  clearGarden();
+  setStage(0);
+  startAutoPlanting();
+  timers.push(setTimeout(runMsg1, 2200));
+}
+
+function runMsg1(){
+  setStage(1);
+  wrapWords(document.getElementById('m1-words'), 'Hey Cutie 🌸', 0.15);
+  timers.push(setTimeout(runMsg2, 1800));
+}
+
+function runMsg2(){
+  setStage(2);
+  const l1 = document.getElementById('m2-line1');
+  const l2 = document.getElementById('m2-line2');
+  l1.textContent = ''; l2.textContent = '';
+  timers.push(setTimeout(()=>{
+    typeInto(l1, "I miss you, Harshuu.", 46, ()=>{
+      timers.push(setTimeout(()=>{
+        typeInto(l2, "I hope you'll love this 🩷", 46);
+      }, 350));
+    });
+  }, 250));
+  timers.push(setTimeout(runMsg3, 2400));
+}
+
+function runMsg3(){
+  setStage(3);
+  const bold = document.getElementById('m3-bold');
+  const words = document.getElementById('m3-words');
+  bold.classList.remove('pop'); void bold.offsetWidth; bold.classList.add('pop');
+  words.innerHTML = '';
+  timers.push(setTimeout(()=>{
+    'I miss your laugh.'.split(' ').forEach((w,i)=>{
+      const span = document.createElement('span');
+      span.className = 'word';
+      span.style.animationDelay = (i*0.16)+'s';
+      span.textContent = w + ' ';
+      words.appendChild(span);
+    });
+    const heart = document.createElement('span');
+    heart.className = 'heart';
+    heart.textContent = '❤️';
+    timers.push(setTimeout(()=>{
+      words.appendChild(heart);
+      heartBurst(window.innerWidth/2, window.innerHeight/2, 12);
+    }, 1000));
+  }, 900));
+  timers.push(setTimeout(runVideoIntro, 1800));
+}
+
+const finaleMessage = [
+  { text:" I never expected someone to become so important to me so naturally. You make my ordinary days feel extraordinary,", shimmer:false },
+  { text:" and somehow you always manage to stay on my mind.", shimmer:false },
+  { text:" I don't want to compete with your dreams or your work 🌸", shimmer:false },
+  { text:"", shimmer:false },
+  { text:"—I just hope that one day, you be mine ", shimmer:false },
+  { text:" I am missing you so much, like I have never just craved someone's presence like this before. so don't think to much in your head just call me cutie,talk to me then you feel better", shimmer:false },
+  { text:"", shimmer:false },
+  { text:"I can't stand it when we're apart. I just want to hold you and talk to you and play with your hair. —", shimmer:true },
+  { text:"  Like, that's all I want. Every now and then I can smell you and it just kills me it's driving me crazy. ", shimmer:true },
+  { text:" I feel homesick, but I'm not missing home, I'm missing you. I'll keep choosing you, admiring you, and believing that i hope you finds its way to mine, just as mine has always found its way to you. 🤍", shimmer:true },
+  { text:"", shimmer:false },
+];
+
+function runFinale(){
+  setStage(5);
+
+  const name = document.getElementById('f-name');
+  const msgBox = document.getElementById('f-message');
+  const sig = document.getElementById('f-sig');
+  const replay = document.getElementById('replay-btn');
+
+  name.classList.remove('show');
+  msgBox.classList.remove('show');
+  sig.classList.remove('show');
+  replay.classList.remove('show');
+
+  msgBox.innerHTML = '';
+  finaleMessage.forEach((line,i)=>{
+    const p = document.createElement('p');
+    p.textContent = line.text || '\u00A0';
+    p.style.animationDelay = (i*0.1)+'s';
+    if (line.text === ''){ p.style.color = 'transparent'; }
+    if (line.shimmer && line.text !== ''){ p.classList.add('shimmer-line'); }
+    msgBox.appendChild(p);
+  });
+
+  timers.push(setTimeout(()=>{
+    name.classList.add('show');
+    heartBurst(window.innerWidth*0.18, window.innerHeight*0.7, 9);
+  }, 300));
+  timers.push(setTimeout(()=> msgBox.classList.add('show'), 750));
+  timers.push(setTimeout(()=> sig.classList.add('show'), 3600));
+  timers.push(setTimeout(()=> replay.classList.add('show'), 9000));
+
+  /* slide carousel — Ken Burns crossfade through the three portraits */
+  const slides = Array.from(document.querySelectorAll('#slides .slide'));
+  const dotsEls = Array.from(document.querySelectorAll('#photo-dots span'));
+  let current = 0;
+  slides.forEach(s=>s.classList.remove('show'));
+  slides[0].classList.add('show');
+
+  const slideInterval = setInterval(()=>{
+    const next = (current+1) % slides.length;
+    slides[current].classList.remove('show');
+    slides[next].classList.add('show');
+    dotsEls.forEach((d,i)=> d.classList.toggle('on', i===next));
+    current = next;
+  }, 2800);
+  finaleLoopHandles.push({type:'interval', id:slideInterval});
+}
+
+function resetToGate(){
+  clearAllTimers();
+  document.querySelectorAll('.stage').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('#slides .slide').forEach(s=> s.classList.remove('show'));
+  document.querySelectorAll('#photo-dots span').forEach(d=> d.classList.remove('on'));
+  const vid = document.getElementById('intro-video');
+  const caption = document.getElementById('intro-caption');
+  const replay = document.getElementById('replay-btn');
+  const name = document.getElementById('f-name');
+  const msgBox = document.getElementById('f-message');
+  const sig = document.getElementById('f-sig');
+  vid.pause();
+  vid.currentTime = 0;
+  vid.classList.remove('show','freeze');
+  caption.classList.remove('show');
+  replay.classList.remove('show');
+  name.classList.remove('show');
+  msgBox.classList.remove('show');
+  sig.classList.remove('show');
+  resetMusicForReplay();
+  gate.classList.remove('hide');
+}
+
+document.getElementById('replay-btn').addEventListener('click', ()=>{
+  resetToGate();
+});
+
+/* =========================================================
+   GATE — a single tap unlocks sound (browser requirement)
+   and kicks off the whole cinematic sequence
+   ========================================================= */
+const gate = document.getElementById('gate');
+function startExperienceFromGate(){
+  gate.classList.add('hide');
+  fadeMusicIn();
+  runGarden();
+}
+gate.addEventListener('click', startExperienceFromGate);
+</script> 
+</body>
+</html>
