@@ -444,18 +444,32 @@
   .finale-copy{
     position:relative;
     z-index:20;
-    padding:clamp(2rem,7vh,4rem) clamp(1.6rem,5vw,4.2rem);
+    padding:clamp(1.2rem,3vh,2.2rem) clamp(1.4rem,5vw,3rem) 3.8rem;
     width:100%;
+    max-height:68vh;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;          /* Firefox */
     text-align:left;
     background:transparent;
     border-radius:0;
     box-shadow:none;
   }
-  .finale-copy::before{
-    display:none;
+  .finale-copy::-webkit-scrollbar{ display:none; } /* Chrome/Safari */
+  .finale-copy::before{ display:none; }
+  /* Fade hint at bottom so user knows there's more to scroll */
+  .finale-copy::after{
+    content:'';
+    position:sticky;
+    bottom:0; left:0; right:0;
+    display:block;
+    height:2.5rem;
+    background:linear-gradient(to top, rgba(20,6,12,.7) 0%, transparent 100%);
+    pointer-events:none;
+    margin-top:-2.5rem;
   }
   @media (max-width:600px){
-    .finale-copy{ background:transparent; }
+    .finale-copy{ background:transparent; max-height:62vh; }
   }
   .finale-name{
     font-family:'Bitter','Playfair Display',serif;
