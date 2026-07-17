@@ -609,34 +609,37 @@
   .stage-video-active #progress span.on{ background:var(--rose-gold); }
 
   /* ---------- music control ---------- */
+  /* ---------- music control (smaller, cuter) ---------- */
   #music-pill{
     position:fixed;
-    top:calc(var(--sat) + 1.2rem); right:calc(var(--sar) + 1.2rem);
+    top:calc(var(--sat) + 1.2rem);
+    right:calc(var(--sar) + 1.2rem);
     z-index:45;
     display:flex;
     align-items:center;
-    gap:.4rem;
+    gap:.3rem;
     background:rgba(255,255,255,.5);
     border:1px solid rgba(255,255,255,.7);
     backdrop-filter:blur(8px);
     border-radius:999px;
-    padding:.5rem .6rem;
+    padding:.3rem .4rem; /* reduced padding */
     opacity:0;
     transition:opacity .6s ease;
     box-shadow:0 8px 24px rgba(224,103,143,.18);
   }
   #music-pill.show{ opacity:1; }
   #music-pill button{
-    width:30px; height:30px;
+    width:24px; height:24px; /* smaller button */
     border-radius:50%;
     border:none;
     background:rgba(255,141,179,.18);
     color:var(--rose-deep);
-    font-size:.85rem;
+    font-size:.75rem; /* slightly smaller icon */
     cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     transition:background .25s ease, transform .25s ease;
   }
+  #music-pill button:hover{ background:rgba(255,141,179,.32); transform:scale(1.06); }
   #music-pill button:hover{ background:rgba(255,141,179,.32); transform:scale(1.06); }
   #music-pill .bars{
     display:flex; align-items:flex-end; gap:2px; height:14px; margin:0 .1rem;
