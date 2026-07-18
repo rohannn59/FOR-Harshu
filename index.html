@@ -111,7 +111,13 @@
     letter-spacing:.02em;
     text-align:center;
     padding:0 2rem;
-    text-shadow:0 8px 24px rgba(0,0,0,.45);
+    -webkit-text-stroke:.5px rgba(20,6,10,.55);
+    text-shadow:
+      -1.2px -1.2px 0 rgba(20,6,10,.6),
+      1.2px -1.2px 0 rgba(20,6,10,.6),
+      -1.2px 1.2px 0 rgba(20,6,10,.6),
+      1.2px 1.2px 0 rgba(20,6,10,.6),
+      0 8px 20px rgba(0,0,0,.4);
   }
   #gate p{
     position:relative;
@@ -364,7 +370,7 @@
   .bold-word{
     font-family:'Black Chancery','Playfair Display',serif;
     font-weight:400;
-    font-size:clamp(3rem,8.4vw,6rem);
+    font-size:clamp(2.7rem,7.6vw,5.4rem);
     background:linear-gradient(120deg,var(--rose-deep),var(--accent) 45%,var(--rose-gold));
     -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
     margin-bottom:.9rem;
@@ -491,12 +497,18 @@
   }
   .finale-name{
     font-family:'Black Chancery','Playfair Display',serif;
-    font-size:clamp(1.9rem,6.4vw,2.9rem);
+    font-size:clamp(1.6rem,5.5vw,2.5rem);
     font-weight:400;
     font-style:normal;
     letter-spacing:.02em;
     color:var(--cream);
-    text-shadow:0 6px 26px rgba(0,0,0,.4);
+    -webkit-text-stroke:.6px rgba(20,6,10,.65);
+    text-shadow:
+      -1.4px -1.4px 0 rgba(20,6,10,.75),
+      1.4px -1.4px 0 rgba(20,6,10,.75),
+      -1.4px 1.4px 0 rgba(20,6,10,.75),
+      1.4px 1.4px 0 rgba(20,6,10,.75),
+      0 6px 14px rgba(0,0,0,.4);
     margin-bottom:.4rem;
     opacity:0;
     text-rendering:optimizeLegibility;
@@ -517,21 +529,31 @@
     margin-bottom:.5rem;
     display:flex;
     flex-direction:column;
-    gap:.2rem;
+    gap:.35rem;
   }
   .finale-message p{
     font-family:'Lora','Cormorant Garamond',serif;
     font-weight:600;
-    font-size:clamp(.78rem,1.7vw,.92rem);
+    font-size:clamp(.68rem,1.45vw,.8rem);
     letter-spacing:.003em;
-    color:#000;
-    line-height:1.2;
-    text-shadow:0 1px 3px rgba(255,255,255,.55), 0 0 14px rgba(255,255,255,.3);
+    line-height:1.55;
     opacity:0;
     transform:translateY(6px);
     max-width:100%;
     text-rendering:optimizeLegibility;
     -webkit-font-smoothing:antialiased;
+  }
+  .finale-message p .line-text{
+    display:inline;
+    color:#1a0e10;
+    background:rgba(255,246,248,.4);
+    -webkit-backdrop-filter:blur(3px);
+    backdrop-filter:blur(3px);
+    padding:.1em .42em;
+    border-radius:.4em;
+    box-decoration-break:clone;
+    -webkit-box-decoration-break:clone;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
   }
   .finale-message p.f-space{ height:.04rem; margin:0; }
   .finale-message.show p{ animation:lineRise .55s ease forwards; }
@@ -544,27 +566,28 @@
     font-family:'Playfair Display','Cormorant Garamond',serif;
     font-style:italic;
     font-weight:600;
-    background:none;
-    -webkit-background-clip:initial;
-    background-clip:initial;
-    -webkit-text-fill-color:#000;
-    color:#000;
     animation:lineRise .55s ease forwards;
     filter:none;
   }
-  @keyframes shimmerMove{
-    0%{ background-position:0% 50%; }
-    100%{ background-position:250% 50%; }
+  .finale-message p.shimmer-line .line-text{
+    background:rgba(255,225,235,.42);
+    color:#3a0a16;
   }
 
   .finale-signature{
     font-family:'Black Chancery','Playfair Display',serif;
     font-style:normal;
-    font-size:clamp(1.05rem,2.5vw,1.35rem);
+    font-size:clamp(.92rem,2.1vw,1.15rem);
     font-weight:400;
     letter-spacing:.03em;
     color:var(--rose-gold);
-    text-shadow:0 4px 16px rgba(0,0,0,.4);
+    -webkit-text-stroke:.5px rgba(20,6,10,.6);
+    text-shadow:
+      -1.2px -1.2px 0 rgba(20,6,10,.7),
+      1.2px -1.2px 0 rgba(20,6,10,.7),
+      -1.2px 1.2px 0 rgba(20,6,10,.7),
+      1.2px 1.2px 0 rgba(20,6,10,.7),
+      0 4px 12px rgba(0,0,0,.35);
     opacity:0;
     text-rendering:optimizeLegibility;
     padding-top:.3rem;
@@ -723,9 +746,9 @@
   /* extra-narrow phones (SE, small Android) */
   @media (max-width:380px){
     .finale-copy{ width:min(340px, 78%); }
-    .finale-name{ font-size:clamp(1.3rem,6.4vw,1.6rem); }
-    .finale-message p{ font-size:clamp(.72rem,3.4vw,.82rem); line-height:1.22; }
-    .finale-signature{ font-size:.8rem; }
+    .finale-name{ font-size:clamp(1.15rem,5.6vw,1.4rem); }
+    .finale-message p{ font-size:clamp(.62rem,3vw,.72rem); line-height:1.22; }
+    .finale-signature{ font-size:.72rem; }
     #gate h2{ font-size:1.15rem; }
     #song-label{ max-width:76px; }
     .replay-btn{ font-size:.62rem; }
@@ -1517,9 +1540,9 @@ const finaleMessage = [
   { text:"I don't want to compete with your dreams or your work 🌸", shimmer:false },
   { text:"—I just hope that one day, you be mine", shimmer:false },
   { text:"I am missing you so much, like I have never just craved someone's presence like this before. So don't think too much in your mind — just call me, cutie, talk to me, then you'll feel best.", shimmer:false },
-  { text:"I can't stand it when we're apart. I just want to hold you and talk to you and play with your hair — that's all I want. Every now and then I can smell your hair and obsessed with you unconditionally.", shimmer:true },
-  { text:"I feel homesick, but I'm not missing home, I'm missing you. I'll keep choosing you, admiring you, and believing you'll find your way to mine, just as mine has always found its way to you 🤍", shimmer:true },
-  { text:"I don't need your replies to know i still chooses you.", shimmer:true },
+  { text:"I can't stand it when we're apart. I just want to hold you and talk to you and play with your hair — that's all I want. Every now and then I can smell your hair and obsessed with you unconditionally.", shimmer:false },
+  { text:"I feel homesick, but I'm not missing home, I'm missing you. I'll keep choosing you, admiring you, and believing you'll find your way to mine, just as mine has always found its way to you 🤍", shimmer:false },
+  { text:"I don't need your replies to know i still chooses you.", shimmer:false },
 ];
 
 function runFinale(){
@@ -1545,7 +1568,10 @@ function runFinale(){
       msgBox.appendChild(p);
       return;
     }
-    p.textContent = line.text.trim();
+    const span = document.createElement('span');
+    span.className = 'line-text';
+    span.textContent = line.text.trim();
+    p.appendChild(span);
     p.style.animationDelay = (visibleIndex*0.16)+'s';
     if (line.shimmer){ p.classList.add('shimmer-line'); }
     msgBox.appendChild(p);
