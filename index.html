@@ -48,8 +48,21 @@
     text-rendering:optimizeLegibility;
     touch-action:manipulation;
   }
+  #app-frame{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:calc(var(--vh, 1vh) * 100);
+    overflow:hidden;
+    background:#050203;
+  }
+  /* On laptops/desktops the viewport is far wider than this
+     mobile-first design, which crops photos badly with cover-fit.
+     Above ~700px we present the whole experience inside a
+     centered, phone-proportioned frame so every photo is seen
+     in full, exactly as designed. */
   #experience{
-    position:fixed; inset:0;
+    position:absolute; inset:0;
     width:100%;
     height:calc(var(--vh, 1vh) * 100);
     overflow:hidden;
@@ -62,7 +75,7 @@
 
   /* ---------- gate (tap to begin) ---------- */
   #gate{
-    position:fixed; inset:0;
+    position:absolute; inset:0;
     height:calc(var(--vh, 1vh) * 100);
     z-index:100;
     display:flex; flex-direction:column;
@@ -253,7 +266,7 @@
 
   /* ---------- heart burst ---------- */
   .burst-heart{
-    position:fixed;
+    position:absolute;
     font-size:1rem;
     z-index:60;
     pointer-events:none;
@@ -417,6 +430,7 @@
     position:absolute;
     inset:0;
     overflow:hidden;
+    background:#0c0509;
   }
   .slide{
     position:absolute; inset:0;
@@ -434,12 +448,19 @@
     filter:none !important;
     image-rendering:auto;
     backface-visibility:hidden;
-    transform:translateZ(0);
-  }
+    transform:translateZ(0);  }
   .slide.show img{ transform:scale(1.0); }
   .slide[data-pos="top"] img{ object-position:center 20%; }
   .slide[data-pos="mid"] img{ object-position:center 35%; }
   .slide[data-pos="low"] img{ object-position:center 60%; }
+
+  /* Wide screens (laptops/desktops): the mobile-proportioned photos
+     were getting cropped hard by cover-fit against a wide viewport.
+     Show the full photo instead, centered, with the frame's dark
+     backdrop filling the sides — nothing else about the layout changes. */
+  @media (min-width:701px){
+    .slide img{ object-fit:contain; }
+  }
 
   .photo-frame::after{
     content:'';
@@ -634,7 +655,7 @@
   /* ---------- music control ---------- */
   /* ---------- music control (smaller, cuter) ---------- */
   #music-pill{
-    position:fixed;
+    position:absolute;
     top:calc(var(--sat) + 1.2rem);
     right:calc(var(--sar) + 1.2rem);
     z-index:45;
@@ -695,13 +716,13 @@
 
   /* vignette across whole experience */
   #vignette{
-    position:fixed; inset:0;
+    position:absolute; inset:0;
     pointer-events:none;
     z-index:50;
     box-shadow:inset 0 0 16vw rgba(224,103,143,.14);
   }
   #frame-border{
-    position:fixed;
+    position:absolute;
     inset:calc(var(--sat) + 8px) calc(var(--sar) + 8px) calc(var(--sab) + 8px) calc(var(--sal) + 8px);
     pointer-events:none;
     z-index:150;
@@ -728,7 +749,7 @@
 
   /* mouse / touch parallax layer */
   #parallax-glow{
-    position:fixed; inset:0; z-index:4; pointer-events:none;
+    position:absolute; inset:0; z-index:4; pointer-events:none;
     background:radial-gradient(circle 340px at var(--mx,50%) var(--my,50%), rgba(255,255,255,.35), transparent 70%);
     mix-blend-mode:screen;
   }
@@ -776,6 +797,7 @@
 </head>
 <body>
 
+<div id="app-frame">
 <div id="gate">
   <div class="gate-hearts" aria-hidden="true">
     <span style="left:10%; top:18%; animation-delay:0s;">💗</span>
@@ -877,6 +899,8 @@
   <span class="frame-corner tr"><svg viewBox="0 0 46 46" fill="none"><path d="M1 32 L1 1 L32 1" stroke="#E0A696" stroke-width="1.6" stroke-linecap="square"/><path d="M11 32 L11 11 L32 11" stroke="#FFD6E7" stroke-width="1.2" stroke-linecap="square"/></svg></span>
   <span class="frame-corner bl"><svg viewBox="0 0 46 46" fill="none"><path d="M1 32 L1 1 L32 1" stroke="#E0A696" stroke-width="1.6" stroke-linecap="square"/><path d="M11 32 L11 11 L32 11" stroke="#FFD6E7" stroke-width="1.2" stroke-linecap="square"/></svg></span>
   <span class="frame-corner br"><svg viewBox="0 0 46 46" fill="none"><path d="M1 32 L1 1 L32 1" stroke="#E0A696" stroke-width="1.6" stroke-linecap="square"/><path d="M11 32 L11 11 L32 11" stroke="#FFD6E7" stroke-width="1.2" stroke-linecap="square"/></svg></span>
+</div>
+
 </div>
 
 <audio id="bg-music" src="assets/music/ReelAudio-61626.mp3.mpeg" preload="auto"></audio>
@@ -1303,9 +1327,11 @@ for(let i=0;i<18;i++) spawnPetal();
    MOUSE / TOUCH PARALLAX GLOW — subtle luxury cursor glow
    ========================================================= */
 const glow = document.getElementById('parallax-glow');
+const appFrameEl = document.getElementById('app-frame');
 function setGlow(x,y){
-  glow.style.setProperty('--mx', x+'px');
-  glow.style.setProperty('--my', y+'px');
+  const r = appFrameEl.getBoundingClientRect();
+  glow.style.setProperty('--mx', (x - r.left)+'px');
+  glow.style.setProperty('--my', (y - r.top)+'px');
 }
 window.addEventListener('mousemove', e=> setGlow(e.clientX, e.clientY));
 window.addEventListener('touchmove', e=>{
@@ -1328,7 +1354,7 @@ function heartBurst(x, y, count){
     h.style.setProperty('--bx', Math.cos(angle)*dist+'px');
     h.style.setProperty('--by', Math.sin(angle)*dist+'px');
     h.style.fontSize = (0.8 + Math.random()*0.8)+'rem';
-    document.body.appendChild(h);
+    (document.getElementById('app-frame') || document.body).appendChild(h);
     setTimeout(()=> h.remove(), 1000);
   }
 }
@@ -1529,7 +1555,7 @@ function runMsg3(){
     heart.textContent = '❤️';
     timers.push(setTimeout(()=>{
       words.appendChild(heart);
-      heartBurst(window.innerWidth/2, window.innerHeight/2, 12);
+      const _fr1 = (document.getElementById('app-frame')||document.body).getBoundingClientRect(); heartBurst(_fr1.width/2, _fr1.height/2, 12);
     }, 1000));
   }, 900));
   timers.push(setTimeout(runVideoIntro, 1800));
@@ -1542,7 +1568,7 @@ const finaleMessage = [
   { text:"I am missing you so much, like I have never just craved someone's presence like this before. So don't think too much in your mind — just call me, cutie, talk to me, then you'll feel best.", shimmer:false },
   { text:"I can't stand it when we're apart. I just want to hold you and talk to you and play with your hair — that's all I want. Every now and then I can smell your hair and obsessed with you unconditionally.", shimmer:false },
   { text:"I feel homesick, but I'm not missing home, I'm missing you. I'll keep choosing you, admiring you, and believing you'll find your way to mine, just as mine has always found its way to you 🤍", shimmer:false },
-  { text:"I don't need your replies to know i still chooses you.", shimmer:false },
+  { text:"So my cutiest velvet stay calm and listen carefully what i say, don't act like a stranger. you are the perfect one & i love perfection. It's been made with a lot of effort, so take a good look at everything, ok cutiee.", shimmer:false },
 ];
 
 function runFinale(){
@@ -1580,7 +1606,7 @@ function runFinale(){
 
   timers.push(setTimeout(()=>{
     name.classList.add('show');
-    heartBurst(window.innerWidth*0.18, window.innerHeight*0.7, 9);
+    const _fr2 = (document.getElementById('app-frame')||document.body).getBoundingClientRect(); heartBurst(_fr2.width*0.18, _fr2.height*0.7, 9);
   }, 300));
   timers.push(setTimeout(()=> msgBox.classList.add('show'), 750));
   timers.push(setTimeout(()=> sig.classList.add('show'), 3000));
